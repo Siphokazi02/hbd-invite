@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Siphokazi's 21st Invitation</title>
+<style>
+  :root{
+    --sage-1: #9caf9a;
+    --sage-2: #6f8f76;
+    --accent-dark: #000;
+    --btn-radius: 12px;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    padding:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(var(--sage-1), var(--sage-2));
+    color:var(--accent-dark);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* central page container */
+  .page{
+    max-width:920px;      /* good for desktop */
+    margin:24px auto;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+
+  #countdown{
+    font-weight:700;
+    text-align:center;
+    font-size:clamp(18px,3.2vw,28px);
+    background: rgba(255,255,255,0.05);
+    padding:10px 18px;
+    border-radius:10px;
+    width:100%;
+    box-sizing:border-box;
+    max-width:760px;
+  }
+
+  h2{
+    margin:8px 0 12px;
+    font-size:clamp(18px,4.0vw,30px);
+    text-align:center;
+    letter-spacing:0.2px;
+  }
+
+  /* question block */
+  .question{
+    width:100%;
+    max-width:760px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+
+  /* wrapper for buttons so NO can be absolute inside this box */
+  .button-row{
+    position:relative;
+    width:100%;
+    max-width:520px;
+    height:84px; /* fixed area to keep layout from jumping */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+  }
+
+  .btn{
+    --padY: 12px;
+    --padX: 26px;
+    background:var(--accent-dark);
+    color:white;
+    border:none;
+    border-radius:var(--btn-radius);
+    padding: var(--padY) var(--padX);
+    font-size:clamp(16px,2.6vw,20px);
+    cursor:pointer;
+    min-width:110px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action: manipulation;
+    position:relative; /* default */
+  }
+
+  /* NO button will become absolute when it moves, keep same style */
+  .btn-no{
+    background:#111;
+  }
+
+  /* invite area */
+  #invite{
+    text-align:center;
+    width:100%;
+    max-width:760px;
+  }
+
+  #invite img{
+    width:100%;
+    max-width:480px;
+    border-radius:14px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.25);
+  }
+
+  /* cat popup styling */
+  #catWarning{
+    display:none;
+    text-align:center;
+    max-width:520px;
+    background: rgba(255,255,255,0.06);
+    padding:18px;
+    border-radius:12px;
+  }
+  #catWarning img{
+    width:100%;
+    max-width:320px;
+    border-radius:12px;
+    margin-top:10px;
+  }
+
+  /* balloons (non-interactive so they won't block taps) */
+  .balloon{
+    position:fixed;
+    width:48px;
+    height:64px;
+    border-radius:50%;
+    bottom:-120px;
+    pointer-events:none; /* very important for mobile */
+    opacity:0.95;
+    z-index:2;
+  }
+  .balloon::after{
+    content:"";
+    position:absolute;
+    width:2px;
+    height:60px;
+    background:rgba(0,0,0,0.8);
+    left:50%;
+    top:80px;
+  }
+  .b1{ left:4vw; background:#8FAF92; animation: float 6s infinite linear; animation-delay:0s;}
+  .b2{ right:4vw; background:#6B8E23; animation: float 7s infinite linear; animation-delay:1s;}
+  .b3{ left:12vw; background:#7FB77E; animation: float 6.8s infinite linear; animation-delay:0.8s;}
+  .b4{ right:12vw; background:#A8C3A3; animation: float 6.6s infinite linear; animation-delay:0.4s;}
+
+  @keyframes float { 0%{ transform: translateY(0);} 100%{ transform: translateY(-900px);} }
+
+  /* confetti */
+  .confetti{
+    position:fixed;
+    width:10px;
+    height:10px;
+    top:-10px;
+    z-index:3;
+    border-radius:2px;
+  }
+
+  /* small screens adjustments */
+  @media (max-width:480px){
+    .button-row{ height:120px; gap:12px; }
+    .btn{ min-width:120px; padding:14px 22px; }
+  }
+</style>
+</head>
+<body>
+  <div class="balloon b1"></div>
+  <div class="balloon b2"></div>
+  <div class="balloon b3"></div>
+  <div class="balloon b4"></div>
+
+  <main class="page">
+
+    <div id="countdown">Loading countdown...</div>
+
+    <section id="question1" class="question">
+      <h2>Do you know who Siphokazi Ndzoyiya is?</h2>
+
+      <div class="button-row" id="row1">
+        <button class="btn" id="yes1" onclick="next1()">Yes</button>
+        <!-- NO starts as relative; script may switch it to absolute inside the row -->
+        <button class="btn btn-no" id="no1">No</button>
+      </div>
+    </section>
+
+    <section id="question2" class="question" style="display:none;">
+      <h2>Did you know she's turning 21 this year?</h2>
+
+      <div class="button-row" id="row2">
+        <button class="btn" id="yes2" onclick="showInvite()">Yes</button>
+        <button class="btn btn-no" id="no2">No</button>
+      </div>
+    </section>
+
+    <section id="invite" style="display:none;">
+      <h1 style="margin:0 0 8px; font-size:clamp(20px,5vw,34px)">🎉 SURPRISE! YOU ARE INVITED! 🎉</h1>
+      <img src="invite.jpeg" alt="Invitation picture">
+    </section>
+
+    <section id="catWarning">
+      <h2 style="margin:0">IF U DON'T WANNA COME, LEAVE 😫😭🙄</h2>
+      <img src="cat.jpeg" alt="angry cat">
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="location.reload()">Okay okay I'll come 😭</button>
+      </div>
+    </section>
+
+  </main>
+
+<script>
+/* ---------- Countdown ---------- */
+const eventDate = new Date("June 6, 2026 17:00:00").getTime();
+const cdEl = document.getElementById("countdown");
+
+function updateCountdown(){
+  const now = Date.now();
+  let d = eventDate - now;
+  if(d <= 0){
+    cdEl.textContent = "🎉 It's party time! 🎉";
+    return clearInterval(timer);
+  }
+  const days = Math.floor(d / (1000*60*60*24));
+  const hours = Math.floor((d % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((d % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((d % (1000*60)) / 1000);
+  cdEl.innerHTML = `🎂 Countdown to the Celebration:<br>${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+const timer = setInterval(updateCountdown, 1000);
+updateCountdown();
+
+/* ---------- question flow ---------- */
+function next1(){
+  document.getElementById("question1").style.display = "none";
+  document.getElementById("question2").style.display = "flex";
+}
+
+function showInvite(){
+  document.getElementById("question2").style.display = "none";
+  document.getElementById("invite").style.display = "block";
+  launchConfetti();
+}
+
+/* ---------- confetti ---------- */
+function launchConfetti(){
+  for(let i=0;i<80;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random()*100 + "%";
+    c.style.background = ["#6F8F76","#9CAF9A","#000","#A8C3A3"][Math.floor(Math.random()*4)];
+    c.style.animationDuration = (Math.random()*3 + 2) + "s";
+    document.body.appendChild(c);
+    // remove after animation to keep DOM clean
+    setTimeout(()=> c.remove(), 6000);
+  }
+}
+
+/* ---------- NO button runaway logic (desktop hover + mobile touch) ---------- */
+function makeRunAway(buttonId, rowId){
+  const btn = document.getElementById(buttonId);
+  const row = document.getElementById(rowId);
+
+  // helper to move inside the row bounds
+  function runAway(ev){
+    // prevent default touch from trying to click
+    if(ev && ev.type === "touchstart") ev.preventDefault();
+
+    const rowRect = row.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+
+    // compute available area inside row
+    const maxX = Math.max(0, rowRect.width - btnRect.width - 8);
+    const maxY = Math.max(0, rowRect.height - btnRect.height - 8);
+
+    // random position inside row
+    const x = Math.floor(Math.random() * maxX);
+    const y = Math.floor(Math.random() * maxY);
+
+    // convert to coordinates relative to row
+    btn.style.position = "absolute";
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+  }
+
+  // on hover (desktop)
+  btn.addEventListener("mouseenter", runAway);
+  // on touch (mobile) — move before the tap can register
+  btn.addEventListener("touchstart", runAway, {passive:false});
+
+  // if they somehow click it, show the cat message
+  btn.addEventListener("click", showCat);
+}
+
+/* show cat warning */
+function showCat(){
+  document.getElementById("question1").style.display = "none";
+  document.getElementById("question2").style.display = "none";
+  document.getElementById("invite").style.display = "none";
+  const cat = document.getElementById("catWarning");
+  cat.style.display = "block";
+  cat.scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+/* initialize runaway for both NO buttons */
+makeRunAway("no1","row1");
+makeRunAway("no2","row2");
+
+</script>
+</body>
+</html>
